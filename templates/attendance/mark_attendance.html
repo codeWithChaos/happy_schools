@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}Mark Attendance - {{ block.super }}{% endblock %}
+
+{% block page_header %}
+<div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            Mark Attendance
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            Mark attendance for students by class and section
+        </p>
+    </div>
+    <div class="mt-4 flex md:ml-4 md:mt-0">
+        <a href="{% url 'attendance:list' %}" class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to List
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Selection Form -->
+<div class="bg-white shadow sm:rounded-lg mb-6">
+    <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Select Class and Section</h3>
+        <form method="get" action="{% url 'attendance:mark' %}" class="space-y-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <!-- Date -->
+                <div>
+                    <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
+                    <input type="date" name="date" id="date" value="{{ attendance_date }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                </div>
+                
+                <!-- Class -->
+                <div>
+                    <label for="class" class="block text-sm font-medium text-gray-700">Class</label>
+                    <select name="class" id="class" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                        <option value="">Select Class</option>
+                        {% for class in classes %}
+                        <option value="{{ class.id }}" {% if selected_class == class.id|stringformat:"s" %}selected{% endif %}>{{ class.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Section -->
+                <div>
+                    <label for="section" class="block text-sm font-medium text-gray-700">Section</label>
+                    <select name="section" id="section" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                        <option value="">Select Section</option>
+                        {% for section in sections %}
+                        <option value="{{ section.id }}" {% if selected_section == section.id|stringformat:"s" %}selected{% endif %}>{{ section.class_obj.name }} - {{ section.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex justify-end">
+                <button type="submit" class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+                    Load Students
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Attendance Marking Form -->
+{% if students %}
+<form method="post" action="{% url 'attendance:mark' %}">
+    {% csrf_token %}
+    <input type="hidden" name="date" value="{{ attendance_date }}">
+    <input type="hidden" name="class" value="{{ selected_class }}">
+    <input type="hidden" name="section" value="{{ selected_section }}">
+    
+    <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-medium leading-6 text-gray-900">
+                        {{ selected_class_obj.name }} - {{ selected_section_obj.name }}
+                    </h3>
+                    <p class="mt-1 text-sm text-gray-500">
+                        Date: {{ attendance_date|date:"M d, Y" }} | Total Students: {{ students|length }}
+                    </p>
+                </div>
+                <div class="flex space-x-3">
+                    <button type="button" onclick="markAllPresent()" class="inline-flex items-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-500">
+                        Mark All Present
+                    </button>
+                    <button type="submit" class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+                        Save Attendance
+                    </button>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Roll No.</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Student Name</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Admission No.</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                            <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 bg-white">
+                        {% for student_data in students %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                                {{ student_data.student.roll_number|default:"-" }}
+                            </td>
+                            <td class="px-3 py-4 text-sm">
+                                <div class="flex items-center">
+                                    {% if student_data.student.user.profile_photo %}
+                                    <img class="h-8 w-8 rounded-full" src="{{ student_data.student.user.profile_photo.url }}" alt="{{ student_data.student.user.get_full_name }}">
+                                    {% else %}
+                                    <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-500">
+                                        <span class="text-xs font-medium leading-none text-white">{{ student_data.student.user.first_name.0 }}{{ student_data.student.user.last_name.0 }}</span>
+                                    </span>
+                                    {% endif %}
+                                    <div class="ml-3">
+                                        <div class="font-medium text-gray-900">{{ student_data.student.user.get_full_name }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                                {{ student_data.student.admission_number }}
+                            </td>
+                            <td class="px-3 py-4 text-sm">
+                                <select name="status_{{ student_data.student.id }}" class="attendance-status block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                                    {% for value, label in status_choices %}
+                                    <option value="{{ value }}" {% if student_data.status == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                            <td class="px-3 py-4 text-sm">
+                                <input type="text" name="remarks_{{ student_data.student.id }}" value="{{ student_data.remarks }}" placeholder="Optional remarks" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-6 flex justify-end space-x-3">
+                <a href="{% url 'attendance:mark' %}" class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit" class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+                    Save Attendance
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+function markAllPresent() {
+    const selects = document.querySelectorAll('.attendance-status');
+    selects.forEach(select => {
+        select.value = 'present';
+    });
+}
+</script>
+{% endif %}
+{% endblock %}

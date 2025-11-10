@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}School Settings - {{ block.super }}{% endblock %}
+
+{% block page_header %}
+<div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            School Settings
+        </h2>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mt-8">
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">
+                School Information
+            </h3>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                Configure your school settings and preferences.
+            </p>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+            <p class="text-sm text-gray-500">
+                School settings page - To be implemented in Phase 3
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

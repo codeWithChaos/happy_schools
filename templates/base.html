@@ -1,0 +1,141 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="School Management System - Manage students, attendance, fees, exams and more">
+    <meta name="author" content="School Management System">
+    
+    <title>{% block title %}School Management System{% endblock %}</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#EEF2FF',
+                            100: '#E0E7FF',
+                            200: '#C7D2FE',
+                            300: '#A5B4FC',
+                            400: '#818CF8',
+                            500: '#6366F1',
+                            600: '#4F46E5',
+                            700: '#4338CA',
+                            800: '#3730A3',
+                            900: '#312E81',
+                        },
+                        secondary: {
+                            50: '#F8FAFC',
+                            100: '#F1F5F9',
+                            200: '#E2E8F0',
+                            300: '#CBD5E1',
+                            400: '#94A3B8',
+                            500: '#64748B',
+                            600: '#475569',
+                            700: '#334155',
+                            800: '#1E293B',
+                            900: '#0F172A',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}">
+    
+    <!-- Heroicons (via CDN) -->
+    <script src="https://unpkg.com/@heroicons/react@2.0.18/24/outline/index.js" type="module"></script>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        {% if user.is_authenticated %}
+            <!-- Sidebar for authenticated users -->
+            {% include 'components/sidebar.html' %}
+            
+            <!-- Main content area -->
+            <div class="lg:pl-64">
+                <!-- Top navigation -->
+                {% include 'components/topbar.html' %}
+                
+                <!-- Page content -->
+                <main class="py-6">
+                    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                        <!-- Flash messages -->
+                        {% if messages %}
+                            <div class="mb-4 space-y-2">
+                                {% for message in messages %}
+                                    <div class="rounded-lg p-4 {% if message.tags == 'error' %}bg-red-50 text-red-800{% elif message.tags == 'warning' %}bg-amber-50 text-amber-800{% elif message.tags == 'success' %}bg-emerald-50 text-emerald-800{% else %}bg-blue-50 text-blue-800{% endif %}">
+                                        <div class="flex">
+                                            <div class="flex-shrink-0">
+                                                {% if message.tags == 'error' %}
+                                                    <svg class="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                {% elif message.tags == 'success' %}
+                                                    <svg class="h-5 w-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                {% elif message.tags == 'warning' %}
+                                                    <svg class="h-5 w-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                {% else %}
+                                                    <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                {% endif %}
+                                            </div>
+                                            <div class="ml-3">
+                                                <p class="text-sm font-medium">{{ message }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Breadcrumbs -->
+                        {% block breadcrumbs %}{% endblock %}
+                        
+                        <!-- Page header -->
+                        {% block page_header %}{% endblock %}
+                        
+                        <!-- Page content -->
+                        {% block content %}{% endblock %}
+                    </div>
+                </main>
+            </div>
+        {% else %}
+            <!-- Public pages (login, etc.) -->
+            <div class="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
+                {% if messages %}
+                    <div class="mx-auto w-full max-w-md mb-4">
+                        {% for message in messages %}
+                            <div class="rounded-lg p-4 mb-2 {% if message.tags == 'error' %}bg-red-50 text-red-800{% elif message.tags == 'success' %}bg-emerald-50 text-emerald-800{% else %}bg-blue-50 text-blue-800{% endif %}">
+                                <p class="text-sm font-medium">{{ message }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                {% block public_content %}{% endblock %}
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Custom JavaScript -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

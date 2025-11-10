@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Timetable Entry - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <div class="sm:flex sm:items-start">
+                <div class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                    <h3 class="text-lg font-semibold leading-6 text-gray-900">Delete Timetable Entry</h3>
+                    <div class="mt-2">
+                        <p class="text-sm text-gray-500">
+                            Are you sure you want to delete this timetable entry?
+                        </p>
+                        <div class="mt-4 bg-gray-50 rounded-md p-3">
+                            <dl class="text-sm space-y-2">
+                                <div class="flex justify-between">
+                                    <dt class="text-gray-600">Class/Section:</dt>
+                                    <dd class="font-medium">{{ object.class_assigned.name }} - {{ object.section.name }}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-gray-600">Day:</dt>
+                                    <dd class="font-medium">{{ object.get_day_display }}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-gray-600">Period:</dt>
+                                    <dd class="font-medium">Period {{ object.period_number }}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-gray-600">Time:</dt>
+                                    <dd class="font-medium">{{ object.start_time|time:"g:i A" }} - {{ object.end_time|time:"g:i A" }}</dd>
+                                </div>
+                                <div class="flex justify-between">
+                                    <dt class="text-gray-600">Subject:</dt>
+                                    <dd class="font-medium">{{ object.subject.name }}</dd>
+                                </div>
+                                {% if object.teacher %}
+                                <div class="flex justify-between">
+                                    <dt class="text-gray-600">Teacher:</dt>
+                                    <dd class="font-medium">{{ object.teacher.get_full_name }}</dd>
+                                </div>
+                                {% endif %}
+                            </dl>
+                        </div>
+                        <p class="mt-4 text-sm text-red-600 font-medium">
+                            ⚠️ This action cannot be undone.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+            <form method="post" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="inline-flex w-full justify-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto">
+                    Delete
+                </button>
+            </form>
+            <a href="{% url 'timetable:list' %}" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">
+                Cancel
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

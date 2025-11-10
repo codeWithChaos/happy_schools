@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}Sent Messages - {{ block.super }}{% endblock %}
+
+{% block page_header %}
+<div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            Sent Messages
+        </h2>
+    </div>
+    <div class="mt-4 flex md:ml-4 md:mt-0">
+        <a href="{% url 'communications:message_compose' %}" class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Compose
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow sm:rounded-lg">
+    <div class="border-b border-gray-200">
+        <nav class="-mb-px flex space-x-8 px-6 pt-4" aria-label="Tabs">
+            <a href="{% url 'communications:message_inbox' %}" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
+                Inbox
+            </a>
+            <a href="{% url 'communications:message_sent' %}" class="border-primary-500 text-primary-600 whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium">
+                Sent
+            </a>
+        </nav>
+    </div>
+
+    <!-- Search -->
+    <div class="px-4 py-4 border-b border-gray-200">
+        <form method="get">
+            <input type="text" name="search" value="{{ search }}" placeholder="Search sent messages..." class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+        </form>
+    </div>
+
+    <!-- Messages List -->
+    <div class="divide-y divide-gray-200">
+        {% if messages %}
+        {% for message in messages %}
+        <a href="{% url 'communications:message_detail' message.id %}" class="block hover:bg-gray-50">
+            <div class="px-4 py-4 sm:px-6">
+                <div class="flex items-center justify-between">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-medium text-gray-900 truncate">
+                            To: {{ message.recipient.get_full_name }}
+                        </p>
+                        <p class="text-sm text-gray-600 truncate">{{ message.subject }}</p>
+                        <p class="text-xs text-gray-500 mt-1">
+                            {% if message.is_read %}
+                            <span class="text-green-600">Read</span>
+                            {% else %}
+                            <span class="text-gray-400">Sent</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="ml-4 flex-shrink-0 text-sm text-gray-500">
+                        {{ message.created_at|date:"M d" }}
+                    </div>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+        
+        {% if is_paginated %}
+        <div class="px-4 py-3 flex items-center justify-between sm:px-6">
+            <p class="text-sm text-gray-700">
+                Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} results
+            </p>
+            <div class="flex space-x-2">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Previous</a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Next</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="px-4 py-12 text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+            <h3 class="mt-2 text-sm font-semibold text-gray-900">No sent messages</h3>
+            <p class="mt-1 text-sm text-gray-500">Start a conversation by composing a message.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} Fee Structure - {{ block.super }}{% endblock %}
+
+{% block page_header %}
+<div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+        <nav class="flex mb-2" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="{% url 'fees:structure_list' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary-600">Fee Structures</a>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{% if object %}Edit{% else %}Add{% endif %}</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            {% if object %}Edit Fee Structure{% else %}Add Fee Structure{% endif %}
+        </h2>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl">
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Basic Information -->
+        <div class="bg-white shadow sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Basic Information</h3>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">Fee Name *</label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="{{ form.fee_type.id_for_label }}" class="block text-sm font-medium text-gray-700">Fee Type *</label>
+                            {{ form.fee_type }}
+                            {% if form.fee_type.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.fee_type.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.amount.id_for_label }}" class="block text-sm font-medium text-gray-700">Amount *</label>
+                            {{ form.amount }}
+                            {% if form.amount.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.amount.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Applicability -->
+        <div class="bg-white shadow sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Applicability</h3>
+                
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="{{ form.academic_year.id_for_label }}" class="block text-sm font-medium text-gray-700">Academic Year *</label>
+                            {{ form.academic_year }}
+                            {% if form.academic_year.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.academic_year.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.class_applicable.id_for_label }}" class="block text-sm font-medium text-gray-700">Class</label>
+                            {{ form.class_applicable }}
+                            <p class="mt-1 text-xs text-gray-500">Leave blank for all classes</p>
+                            {% if form.class_applicable.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.class_applicable.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payment Schedule -->
+        <div class="bg-white shadow sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Payment Schedule</h3>
+                
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="{{ form.frequency.id_for_label }}" class="block text-sm font-medium text-gray-700">Frequency *</label>
+                            {{ form.frequency }}
+                            {% if form.frequency.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.frequency.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.due_date.id_for_label }}" class="block text-sm font-medium text-gray-700">Due Date *</label>
+                            {{ form.due_date }}
+                            {% if form.due_date.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.due_date.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Late Fee -->
+        <div class="bg-white shadow sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Late Fee Configuration</h3>
+                
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex items-center">
+                            {{ form.late_fee_applicable }}
+                            <label for="{{ form.late_fee_applicable.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                                Apply late fee if payment is past due date
+                            </label>
+                        </div>
+                        {% if form.late_fee_applicable.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.late_fee_applicable.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div id="late-fee-amount" class="{% if not form.late_fee_applicable.value %}hidden{% endif %}">
+                        <label for="{{ form.late_fee_amount.id_for_label }}" class="block text-sm font-medium text-gray-700">Late Fee Amount</label>
+                        {{ form.late_fee_amount }}
+                        {% if form.late_fee_amount.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.late_fee_amount.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status (Edit only) -->
+        {% if object %}
+        <div class="bg-white shadow sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Status</h3>
+                
+                <div class="flex items-center">
+                    {{ form.is_active }}
+                    <label for="{{ form.is_active.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                        Active (fee is currently applicable)
+                    </label>
+                </div>
+                {% if form.is_active.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.is_active.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Form Errors -->
+        {% if form.non_field_errors %}
+        <div class="rounded-md bg-red-50 p-4">
+            <div class="flex">
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">{{ form.non_field_errors.0 }}</h3>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Actions -->
+        <div class="flex justify-end space-x-3">
+            <a href="{% url 'fees:structure_list' %}" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancel</a>
+            <button type="submit" class="rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+                {% if object %}Update{% else %}Create{% endif %} Fee Structure
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Add input classes
+document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"], select, textarea').forEach(el => {
+    el.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-primary-500', 'focus:ring-primary-500', 'sm:text-sm');
+});
+document.querySelectorAll('input[type="checkbox"]').forEach(el => {
+    el.classList.add('h-4', 'w-4', 'rounded', 'border-gray-300', 'text-primary-600', 'focus:ring-primary-500');
+});
+document.querySelectorAll('textarea').forEach(el => {
+    el.rows = 3;
+});
+
+// Toggle late fee amount field
+document.getElementById('{{ form.late_fee_applicable.id_for_label }}').addEventListener('change', function() {
+    const lateFeeAmount = document.getElementById('late-fee-amount');
+    if (this.checked) {
+        lateFeeAmount.classList.remove('hidden');
+    } else {
+        lateFeeAmount.classList.add('hidden');
+    }
+});
+</script>
+{% endblock %}

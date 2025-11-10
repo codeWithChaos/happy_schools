@@ -1,0 +1,131 @@
+<!-- Sidebar for desktop -->
+<div class="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
+    <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-primary-600 px-6 pb-4">
+        <!-- School Logo & Name -->
+        <div class="flex h-16 shrink-0 items-center">
+            {% if request.school.logo %}
+                <img class="h-10 w-auto" src="{{ request.school.logo.url }}" alt="{{ request.school.name }}">
+            {% else %}
+                <div class="flex items-center space-x-2">
+                    <svg class="h-10 w-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                    <span class="text-white font-semibold text-lg">SMS</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="flex flex-1 flex-col">
+            <ul role="list" class="flex flex-1 flex-col gap-y-7">
+                <li>
+                    <ul role="list" class="-mx-2 space-y-1">
+                        <!-- Dashboard -->
+                        <li>
+                            <a href="{% url 'dashboard:index' %}" class="group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold {% if request.resolver_match.url_name == 'index' and request.resolver_match.namespace == 'dashboard' %}bg-primary-700 text-white{% else %}text-primary-200 hover:text-white hover:bg-primary-700{% endif %}">
+                                <svg class="h-6 w-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                </svg>
+                                Dashboard
+                            </a>
+                        </li>
+                        
+                        <!-- Students - Show for admin and teachers -->
+                        {% if user.role == 'admin' or user.role == 'teacher' %}
+                        <li>
+                            <a href="{% url 'students:list' %}" class="group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold {% if request.resolver_match.namespace == 'students' %}bg-primary-700 text-white{% else %}text-primary-200 hover:text-white hover:bg-primary-700{% endif %}">
+                                <svg class="h-6 w-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                </svg>
+                                Students
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- Attendance -->
+                        <li>
+                            <a href="{% url 'attendance:list' %}" class="group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold {% if request.resolver_match.namespace == 'attendance' %}bg-primary-700 text-white{% else %}text-primary-200 hover:text-white hover:bg-primary-700{% endif %}">
+                                <svg class="h-6 w-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                </svg>
+                                Attendance
+                            </a>
+                        </li>
+                        
+                        <!-- Fees - Show for admin only -->
+                        {% if user.role == 'admin' %}
+                        <li>
+                            <a href="{% url 'fees:list' %}" class="group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold {% if request.resolver_match.namespace == 'fees' %}bg-primary-700 text-white{% else %}text-primary-200 hover:text-white hover:bg-primary-700{% endif %}">
+                                <svg class="h-6 w-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                                Fees
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        <!-- Timetable -->
+                        <li>
+                            <a href="{% url 'timetable:list' %}" class="group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold {% if request.resolver_match.namespace == 'timetable' %}bg-primary-700 text-white{% else %}text-primary-200 hover:text-white hover:bg-primary-700{% endif %}">
+                                <svg class="h-6 w-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                Timetable
+                            </a>
+                        </li>
+                        
+                        <!-- Examinations -->
+                        <li>
+                            <a href="{% url 'examinations:list' %}" class="group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold {% if request.resolver_match.namespace == 'examinations' %}bg-primary-700 text-white{% else %}text-primary-200 hover:text-white hover:bg-primary-700{% endif %}">
+                                <svg class="h-6 w-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Examinations
+                            </a>
+                        </li>
+                        
+                        <!-- Communications -->
+                        <li>
+                            <a href="{% url 'communications:announcement_list' %}" class="group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold {% if request.resolver_match.namespace == 'communications' %}bg-primary-700 text-white{% else %}text-primary-200 hover:text-white hover:bg-primary-700{% endif %}">
+                                <svg class="h-6 w-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+                                </svg>
+                                Communications
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                
+                <!-- Settings - Show for admin only -->
+                {% if user.role == 'admin' %}
+                <li class="mt-auto">
+                    <a href="{% url 'accounts:settings' %}" class="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-primary-200 hover:bg-primary-700 hover:text-white">
+                        <svg class="h-6 w-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        </svg>
+                        Settings
+                    </a>
+                </li>
+                {% endif %}
+                
+                <!-- User Profile Section -->
+                <li class="-mx-6 mt-auto">
+                    <div class="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white border-t border-primary-500">
+                        {% if user.profile_photo %}
+                            <img class="h-8 w-8 rounded-full bg-primary-800" src="{{ user.profile_photo.url }}" alt="{{ user.get_full_name }}">
+                        {% else %}
+                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary-800">
+                                <span class="text-sm font-medium leading-none text-white">{{ user.first_name.0 }}{{ user.last_name.0 }}</span>
+                            </span>
+                        {% endif %}
+                        <div class="flex-1">
+                            <span class="block text-sm">{{ user.get_full_name }}</span>
+                            <span class="block text-xs text-primary-200">{{ user.get_role_display }}</span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>

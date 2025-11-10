@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_tags %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Parent Dashboard</h1>
+            <p class="text-gray-600 mt-1">Welcome back, {{ user.get_full_name }}</p>
+        </div>
+        <div class="text-right">
+            <p class="text-sm text-gray-600">{{ request.school.name }}</p>
+            <p class="text-sm text-gray-500">{{ request.academic_year.name }}</p>
+        </div>
+    </div>
+
+    <!-- Children Overview -->
+    <div class="space-y-6">
+        {% for child_data in children %}
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <!-- Child Header -->
+            <div class="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 text-white">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-semibold">{{ child_data.student.user.get_full_name }}</h2>
+                        <p class="text-blue-100 mt-1">{{ child_data.student.current_class.name }} - Roll No: {{ child_data.student.roll_number }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-blue-100">Admission No.</p>
+                        <p class="text-lg font-semibold">{{ child_data.student.admission_number }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Child Statistics -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
+                <!-- Attendance -->
+                <div class="flex items-center gap-4">
+                    <div class="bg-purple-100 p-3 rounded-full">
+                        <svg class="h-8 w-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Attendance (30 days)</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ child_data.attendance_percentage }}%</p>
+                        <a href="{% url 'attendance:student_report' child_data.student.id %}" class="text-xs text-purple-600 hover:text-purple-700">View details →</a>
+                    </div>
+                </div>
+
+                <!-- Fee Status -->
+                <div class="flex items-center gap-4">
+                    <div class="bg-yellow-100 p-3 rounded-full">
+                        <svg class="h-8 w-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Fee Due</p>
+                        <p class="text-2xl font-bold {% if child_data.total_due > 0 %}text-red-600{% else %}text-green-600{% endif %}">
+                            {% if child_data.total_due > 0 %}{{ child_data.total_due|currency }}{% else %}Paid{% endif %}
+                        </p>
+                        <a href="{% url 'fees:payment_history' child_data.student.id %}" class="text-xs text-yellow-600 hover:text-yellow-700">View history →</a>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="flex items-center gap-2">
+                    <a href="{% url 'examinations:student_results' child_data.student.id %}" class="flex-1 px-4 py-2 bg-blue-50 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-100 text-center">
+                        Results
+                    </a>
+                    <a href="{% url 'timetable:class_view' child_data.student.current_class.id %}" class="flex-1 px-4 py-2 bg-green-50 text-green-700 text-sm font-medium rounded-lg hover:bg-green-100 text-center">
+                        Timetable
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Results -->
+            {% if child_data.recent_results %}
+            <div class="border-t border-gray-200 px-6 py-4">
+                <h3 class="text-sm font-semibold text-gray-900 mb-3">Recent Exam Results</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {% for result in child_data.recent_results %}
+                    <div class="bg-gray-50 rounded-lg p-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ result.subject.name }}</p>
+                                <p class="text-xs text-gray-600">{{ result.exam.name }} - {{ result.exam.exam_type|title }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-bold {% if result.grade in 'ABC' %}text-green-600{% elif result.grade == 'D' %}text-yellow-600{% else %}text-red-600{% endif %}">
+                                    {{ result.grade }}
+                                </p>
+                                <p class="text-xs text-gray-600">{{ result.marks_obtained }}/{{ result.max_marks }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-lg shadow p-12 text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+            <h3 class="mt-4 text-lg font-medium text-gray-900">No Children Found</h3>
+            <p class="mt-2 text-sm text-gray-500">No student records are associated with your account.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Messages & Announcements -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Messages -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-900">Messages</h2>
+                {% if unread_messages > 0 %}
+                <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">{{ unread_messages }} unread</span>
+                {% endif %}
+            </div>
+            <div class="p-6">
+                <div class="space-y-3">
+                    <a href="{% url 'communications:message_inbox' %}" class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                        <div class="flex items-center gap-3">
+                            <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                            </svg>
+                            <span class="font-medium text-gray-900">Inbox</span>
+                        </div>
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                    
+                    <a href="{% url 'communications:message_compose' %}" class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                        <div class="flex items-center gap-3">
+                            <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            <span class="font-medium text-gray-900">Compose Message</span>
+                        </div>
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-gray-900">Notifications</h2>
+                {% if unread_notifications > 0 %}
+                <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">{{ unread_notifications }} unread</span>
+                {% endif %}
+            </div>
+            <div class="p-6">
+                <a href="{% url 'communications:notification_list' %}" class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100">
+                    <div class="flex items-center gap-3">
+                        <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        <div>
+                            <span class="font-medium text-gray-900 block">View All Notifications</span>
+                            <span class="text-xs text-gray-500">Stay updated with school activities</span>
+                        </div>
+                    </div>
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Announcements -->
+    <div class="bg-white rounded-lg shadow">
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Recent Announcements</h2>
+        </div>
+        <div class="divide-y divide-gray-200">
+            {% for announcement in recent_announcements %}
+            <div class="p-4 hover:bg-gray-50">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2">
+                            <p class="font-medium text-gray-900">{{ announcement.title }}</p>
+                            {% if announcement.priority == 'urgent' %}
+                            <span class="text-xs px-2 py-1 bg-red-100 text-red-800 rounded-full">Urgent</span>
+                            {% elif announcement.priority == 'high' %}
+                            <span class="text-xs px-2 py-1 bg-orange-100 text-orange-800 rounded-full">High</span>
+                            {% endif %}
+                        </div>
+                        <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ announcement.content|truncatewords:20 }}</p>
+                        <p class="text-xs text-gray-500 mt-1">{{ announcement.created_at|timesince }} ago</p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="p-4 text-center text-gray-500">No announcements</div>
+            {% endfor %}
+        </div>
+        <div class="p-4 bg-gray-50 border-t border-gray-200">
+            <a href="{% url 'communications:announcement_list' %}" class="text-sm text-blue-600 hover:text-blue-700">View all announcements →</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

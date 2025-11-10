@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Registration - School Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            200: '#ddd6fe',
+                            300: '#c4b5fd',
+                            400: '#a78bfa',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                            800: '#5b21b6',
+                            900: '#4c1d95',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full">
+    <div class="min-h-full">
+        <!-- Header -->
+        <header class="bg-white shadow-sm">
+            <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <svg class="h-8 w-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                        <h1 class="text-xl font-bold text-gray-900">School Management System</h1>
+                    </div>
+                    <a href="{% url 'accounts:login' %}" class="text-sm font-medium text-primary-600 hover:text-primary-500">
+                        Already have an account? Sign in
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <main class="py-10">
+            <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+                <!-- Page Header -->
+                <div class="mb-8 text-center">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-900">Register Your School</h2>
+                    <p class="mt-2 text-sm text-gray-600">
+                        Start managing your school efficiently with our comprehensive management system
+                    </p>
+                </div>
+
+                <!-- Messages -->
+                {% if messages %}
+                <div class="mb-6">
+                    {% for message in messages %}
+                    <div class="rounded-md {% if message.tags == 'error' %}bg-red-50 border border-red-200{% else %}bg-green-50 border border-green-200{% endif %} p-4 mb-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                {% if message.tags == 'error' %}
+                                <svg class="h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                {% else %}
+                                <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                {% endif %}
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm {% if message.tags == 'error' %}text-red-800{% else %}text-green-800{% endif %}">
+                                    {{ message }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Registration Form -->
+                <div class="bg-white shadow sm:rounded-lg">
+                    <form method="post" class="space-y-6 px-4 py-5 sm:p-6">
+                        {% csrf_token %}
+                        
+                        <!-- Non-field errors -->
+                        {% if form.non_field_errors %}
+                        <div class="rounded-md bg-red-50 p-4">
+                            <div class="text-sm text-red-700">
+                                {{ form.non_field_errors }}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- School Information Section -->
+                        <div>
+                            <h3 class="text-lg font-medium leading-6 text-gray-900">School Information</h3>
+                            <p class="mt-1 text-sm text-gray-500">Basic information about your school</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <!-- School Name -->
+                            <div class="sm:col-span-2">
+                                <label for="id_school_name" class="block text-sm font-medium text-gray-700">
+                                    School Name <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.school_name }}
+                                {% if form.school_name.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.school_name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- Email -->
+                            <div>
+                                <label for="id_email" class="block text-sm font-medium text-gray-700">
+                                    School Email <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- Phone -->
+                            <div>
+                                <label for="id_phone" class="block text-sm font-medium text-gray-700">
+                                    School Phone <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.phone.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- Address Line 1 -->
+                            <div class="sm:col-span-2">
+                                <label for="id_address_line1" class="block text-sm font-medium text-gray-700">
+                                    Address <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.address_line1 }}
+                                {% if form.address_line1.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.address_line1.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- City -->
+                            <div>
+                                <label for="id_city" class="block text-sm font-medium text-gray-700">
+                                    City <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.city }}
+                                {% if form.city.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.city.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- State -->
+                            <div>
+                                <label for="id_state" class="block text-sm font-medium text-gray-700">
+                                    State/Province <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.state }}
+                                {% if form.state.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.state.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- Postal Code -->
+                            <div>
+                                <label for="id_postal_code" class="block text-sm font-medium text-gray-700">
+                                    Postal Code <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.postal_code }}
+                                {% if form.postal_code.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.postal_code.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Admin Account Section -->
+                        <div class="pt-6 border-t border-gray-200">
+                            <h3 class="text-lg font-medium leading-6 text-gray-900">Administrator Account</h3>
+                            <p class="mt-1 text-sm text-gray-500">Create the main administrator account for your school</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                            <!-- First Name -->
+                            <div>
+                                <label for="id_admin_first_name" class="block text-sm font-medium text-gray-700">
+                                    First Name <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.admin_first_name }}
+                                {% if form.admin_first_name.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.admin_first_name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- Last Name -->
+                            <div>
+                                <label for="id_admin_last_name" class="block text-sm font-medium text-gray-700">
+                                    Last Name <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.admin_last_name }}
+                                {% if form.admin_last_name.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.admin_last_name.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- Admin Email -->
+                            <div class="sm:col-span-2">
+                                <label for="id_admin_email" class="block text-sm font-medium text-gray-700">
+                                    Email Address <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.admin_email }}
+                                {% if form.admin_email.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.admin_email.errors.0 }}</p>
+                                {% endif %}
+                                <p class="mt-1 text-xs text-gray-500">This will be your login email</p>
+                            </div>
+
+                            <!-- Password -->
+                            <div>
+                                <label for="id_admin_password" class="block text-sm font-medium text-gray-700">
+                                    Password <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.admin_password }}
+                                {% if form.admin_password.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.admin_password.errors.0 }}</p>
+                                {% else %}
+                                <p class="mt-1 text-xs text-gray-500">{{ form.admin_password.help_text }}</p>
+                                {% endif %}
+                            </div>
+
+                            <!-- Confirm Password -->
+                            <div>
+                                <label for="id_admin_password_confirm" class="block text-sm font-medium text-gray-700">
+                                    Confirm Password <span class="text-red-500">*</span>
+                                </label>
+                                {{ form.admin_password_confirm }}
+                                {% if form.admin_password_confirm.errors %}
+                                <p class="mt-1 text-sm text-red-600">{{ form.admin_password_confirm.errors.0 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="pt-6 border-t border-gray-200">
+                            <div class="flex items-start">
+                                <div class="flex h-5 items-center">
+                                    {{ form.agree_terms }}
+                                </div>
+                                <div class="ml-3">
+                                    <label for="id_agree_terms" class="text-sm text-gray-700">
+                                        {{ form.agree_terms.label }}
+                                    </label>
+                                    {% if form.agree_terms.errors %}
+                                    <p class="mt-1 text-sm text-red-600">{{ form.agree_terms.errors.0 }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="pt-5">
+                            <div class="flex justify-end space-x-3">
+                                <a href="{% url 'accounts:login' %}" class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50">
+                                    Cancel
+                                </a>
+                                <button type="submit" class="inline-flex justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                                    Register School
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Trial Info -->
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-500">
+                        🎉 Your school will start with a <strong>30-day free trial</strong>. No credit card required!
+                    </p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-12 border-t border-gray-200 py-6">
+            <div class="mx-auto max-w-7xl px-4 text-center text-sm text-gray-500 sm:px-6 lg:px-8">
+                <p>&copy; 2025 School Management System. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ student.user.get_full_name }} - Attendance History - {{ block.super }}{% endblock %}
+
+{% block page_header %}
+<div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            Attendance History
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            {{ student.user.get_full_name }} ({{ student.admission_number }})
+        </p>
+    </div>
+    <div class="mt-4 flex md:ml-4 md:mt-0 space-x-3">
+        <a href="{% url 'students:detail' student.id %}" class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            View Profile
+        </a>
+        <a href="{% url 'attendance:list' %}" class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to List
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Student Info Card -->
+<div class="bg-white shadow sm:rounded-lg mb-6">
+    <div class="px-4 py-5 sm:p-6">
+        <div class="flex items-center space-x-4">
+            {% if student.user.profile_photo %}
+            <img class="h-16 w-16 rounded-full" src="{{ student.user.profile_photo.url }}" alt="{{ student.user.get_full_name }}">
+            {% else %}
+            <span class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-gray-500">
+                <span class="text-xl font-medium leading-none text-white">{{ student.user.first_name.0 }}{{ student.user.last_name.0 }}</span>
+            </span>
+            {% endif %}
+            <div>
+                <h3 class="text-lg font-medium text-gray-900">{{ student.user.get_full_name }}</h3>
+                <p class="text-sm text-gray-500">{{ student.class_assigned.name }} - {{ student.section.name }}</p>
+                <p class="text-sm text-gray-500">Roll No: {{ student.roll_number|default:"-" }} | Admission No: {{ student.admission_number }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-5 mb-6">
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-gray-500">Total Days</dt>
+        <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ stats.total_days }}</dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-gray-500">Present</dt>
+        <dd class="mt-1 text-3xl font-semibold tracking-tight text-green-600">{{ stats.present_days }}</dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-gray-500">Absent</dt>
+        <dd class="mt-1 text-3xl font-semibold tracking-tight text-red-600">{{ stats.absent_days }}</dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-gray-500">Late</dt>
+        <dd class="mt-1 text-3xl font-semibold tracking-tight text-orange-600">{{ stats.late_days }}</dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-gray-500">Attendance %</dt>
+        <dd class="mt-1 text-3xl font-semibold tracking-tight text-primary-600">{{ stats.attendance_percentage }}%</dd>
+    </div>
+</div>
+
+<!-- Date Range Filter -->
+<div class="bg-white shadow sm:rounded-lg mb-6">
+    <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Filter by Date Range</h3>
+        <form method="get" action="{% url 'attendance:student_detail' student.id %}" class="space-y-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                    <input type="date" name="start_date" id="start_date" value="{{ start_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
+                    <input type="date" name="end_date" id="end_date" value="{{ end_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+                    Apply Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Attendance Records Table -->
+<div class="bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">
+            Attendance Records ({{ start_date|date:"M d, Y" }} - {{ end_date|date:"M d, Y" }})
+        </h3>
+        
+        {% if attendance_records %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Date</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Day</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Check In</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Check Out</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Marked By</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Remarks</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                    {% for record in attendance_records %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{{ record.date|date:"M d, Y" }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ record.date|date:"l" }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm">
+                            {% if record.status == 'present' %}
+                            <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Present</span>
+                            {% elif record.status == 'absent' %}
+                            <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">Absent</span>
+                            {% elif record.status == 'late' %}
+                            <span class="inline-flex items-center rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800">Late</span>
+                            {% elif record.status == 'half_day' %}
+                            <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">Half Day</span>
+                            {% elif record.status == 'excused' %}
+                            <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">Excused</span>
+                            {% endif %}
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            {% if record.check_in_time %}{{ record.check_in_time|time:"g:i A" }}{% else %}-{% endif %}
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            {% if record.check_out_time %}{{ record.check_out_time|time:"g:i A" }}{% else %}-{% endif %}
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            {{ record.marked_by.get_full_name }}
+                        </td>
+                        <td class="px-3 py-4 text-sm text-gray-500">
+                            {{ record.remarks|default:"-" }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+            <h3 class="mt-2 text-sm font-semibold text-gray-900">No attendance records found</h3>
+            <p class="mt-1 text-sm text-gray-500">No attendance has been recorded for this student in the selected date range.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

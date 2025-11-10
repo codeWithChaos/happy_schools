@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}Exam Report - {{ exam.name }} - {{ block.super }}{% endblock %}
+
+{% block page_header %}
+<div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            Exam Report
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">{{ exam.name }} - {{ exam.get_exam_type_display }} - {{ exam.academic_year.year_name }}</p>
+    </div>
+    <div class="mt-4 flex md:ml-4 md:mt-0">
+        <button onclick="window.print()" class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+            </svg>
+            Print Report
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Exam Summary -->
+<div class="bg-white shadow sm:rounded-lg mb-6 print:shadow-none">
+    <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Exam Summary</h3>
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-3">
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Exam Name</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ exam.name }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Exam Type</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ exam.get_exam_type_display }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Academic Year</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ exam.academic_year.year_name }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Start Date</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ exam.start_date }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">End Date</dt>
+                <dd class="mt-1 text-sm text-gray-900">{{ exam.end_date }}</dd>
+            </div>
+            <div>
+                <dt class="text-sm font-medium text-gray-500">Classes</dt>
+                <dd class="mt-1 text-sm text-gray-900">
+                    {% for class in exam.classes.all %}
+                        {{ class.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </dd>
+            </div>
+        </dl>
+    </div>
+</div>
+
+<!-- Class-wise Statistics -->
+{% if class_stats %}
+<div class="bg-white shadow sm:rounded-lg print:shadow-none">
+    <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Class-wise Performance Report</h3>
+        
+        {% for stat in class_stats %}
+        <div class="mb-8 {% if not forloop.last %}pb-8 border-b border-gray-200{% endif %} print:break-inside-avoid">
+            <h4 class="text-md font-semibold text-gray-900 mb-4">{{ stat.class.name }}</h4>
+            
+            <!-- Class Statistics Cards -->
+            <div class="grid grid-cols-2 gap-4 sm:grid-cols-5 mb-4">
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <dt class="text-xs font-medium text-gray-500 truncate">Total Students</dt>
+                    <dd class="mt-1 text-2xl font-semibold text-gray-900">{{ stat.total_students }}</dd>
+                </div>
+                <div class="bg-blue-50 rounded-lg p-4">
+                    <dt class="text-xs font-medium text-blue-700 truncate">Appeared</dt>
+                    <dd class="mt-1 text-2xl font-semibold text-blue-900">{{ stat.appeared }}</dd>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4">
+                    <dt class="text-xs font-medium text-green-700 truncate">Passed</dt>
+                    <dd class="mt-1 text-2xl font-semibold text-green-900">{{ stat.passed }}</dd>
+                </div>
+                <div class="bg-red-50 rounded-lg p-4">
+                    <dt class="text-xs font-medium text-red-700 truncate">Failed</dt>
+                    <dd class="mt-1 text-2xl font-semibold text-red-900">{{ stat.failed }}</dd>
+                </div>
+                <div class="bg-purple-50 rounded-lg p-4">
+                    <dt class="text-xs font-medium text-purple-700 truncate">Pass %</dt>
+                    <dd class="mt-1 text-2xl font-semibold text-purple-900">{{ stat.pass_percentage }}%</dd>
+                </div>
+            </div>
+
+            <!-- Average Marks -->
+            <div class="bg-yellow-50 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                    <dt class="text-sm font-medium text-yellow-700">Average Marks</dt>
+                    <dd class="text-xl font-semibold text-yellow-900">{{ stat.avg_marks|floatformat:2 }}</dd>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Overall Summary Table -->
+<div class="bg-white shadow sm:rounded-lg mt-6 print:shadow-none">
+    <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Overall Summary</h3>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Class</th>
+                        <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Total Students</th>
+                        <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Appeared</th>
+                        <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Passed</th>
+                        <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Failed</th>
+                        <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Pass %</th>
+                        <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-gray-900">Avg Marks</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                    {% for stat in class_stats %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">{{ stat.class.name }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">{{ stat.total_students }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">{{ stat.appeared }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-right">
+                            <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">{{ stat.passed }}</span>
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-right">
+                            <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">{{ stat.failed }}</span>
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm font-semibold text-right
+                            {% if stat.pass_percentage >= 75 %}text-green-600
+                            {% elif stat.pass_percentage >= 50 %}text-yellow-600
+                            {% else %}text-red-600{% endif %}">
+                            {{ stat.pass_percentage }}%
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">{{ stat.avg_marks|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <h3 class="mt-2 text-sm font-semibold text-gray-900">No results available</h3>
+            <p class="mt-1 text-sm text-gray-500">Results have not been entered for any class yet.</p>
+            <div class="mt-6">
+                <a href="{% url 'examinations:enter_marks' exam.id %}" class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+                    Enter Marks
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="mt-6 print:hidden">
+    <a href="{% url 'examinations:detail' exam.id %}" class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+        Back to Exam Details
+    </a>
+</div>
+{% endblock %}

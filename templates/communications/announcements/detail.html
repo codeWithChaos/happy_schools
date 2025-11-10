@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ announcement.title }} - {{ block.super }}{% endblock %}
+
+{% block page_header %}
+<div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            {{ announcement.title }}
+        </h2>
+    </div>
+    {% if user.role == 'admin' or user.role == 'teacher' %}
+    <div class="mt-4 flex md:ml-4 md:mt-0 space-x-2">
+        <a href="{% url 'communications:announcement_edit' announcement.id %}" class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+            Edit
+        </a>
+        <a href="{% url 'communications:announcement_delete' announcement.id %}" class="inline-flex items-center rounded-md bg-red-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500">
+            Delete
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        <!-- Metadata -->
+        <div class="mb-6 pb-6 border-b border-gray-200">
+            <div class="flex items-center space-x-4 text-sm text-gray-500">
+                <div class="flex items-center">
+                    <svg class="h-5 w-5 text-gray-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    <span>{{ announcement.created_by.get_full_name }}</span>
+                </div>
+                <span>•</span>
+                <div class="flex items-center">
+                    <svg class="h-5 w-5 text-gray-400 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>{{ announcement.created_at|date:"M d, Y - g:i A" }}</span>
+                </div>
+                {% if announcement.expiry_date %}
+                <span>•</span>
+                <div class="flex items-center">
+                    <span>Expires: {{ announcement.expiry_date|date:"M d, Y" }}</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="flex items-center space-x-2 mt-4">
+                <!-- Priority Badge -->
+                {% if announcement.priority == 'urgent' %}
+                <span class="inline-flex items-center rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-medium text-red-800">Urgent</span>
+                {% elif announcement.priority == 'high' %}
+                <span class="inline-flex items-center rounded-full bg-orange-100 px-2.5 py-0.5 text-xs font-medium text-orange-800">High Priority</span>
+                {% elif announcement.priority == 'normal' %}
+                <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">Normal</span>
+                {% else %}
+                <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">Low Priority</span>
+                {% endif %}
+                
+                <!-- Status Badge -->
+                {% if announcement.is_published %}
+                <span class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">Published</span>
+                {% else %}
+                <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">Draft</span>
+                {% endif %}
+                
+                <!-- Target Audience -->
+                <span class="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">
+                    {{ announcement.get_target_audience_display }}
+                </span>
+                
+                {% if announcement.is_pinned %}
+                <span class="inline-flex items-center rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800">
+                    <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 2a.75.75 0 01.75.75v7.5h3.5a.75.75 0 010 1.5h-8.5a.75.75 0 010-1.5h3.5v-7.5A.75.75 0 0110 2z"/>
+                    </svg>
+                    Pinned
+                </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="prose max-w-none mb-6">
+            <p class="text-gray-700 whitespace-pre-wrap">{{ announcement.content }}</p>
+        </div>
+
+        <!-- Target Classes -->
+        {% if announcement.target_audience == 'specific_class' and announcement.target_classes.all %}
+        <div class="mb-6 pb-6 border-b border-gray-200">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">Target Classes:</h4>
+            <div class="flex flex-wrap gap-2">
+                {% for class in announcement.target_classes.all %}
+                <span class="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                    {{ class.name }}
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Attachment -->
+        {% if announcement.attachment %}
+        <div class="mb-6">
+            <h4 class="text-sm font-medium text-gray-700 mb-2">Attachment:</h4>
+            <a href="{{ announcement.attachment.url }}" target="_blank" class="inline-flex items-center text-primary-600 hover:text-primary-900">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                </svg>
+                Download Attachment
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-6">
+    <a href="{% url 'communications:announcement_list' %}" class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+        Back to Announcements
+    </a>
+</div>
+{% endblock %}

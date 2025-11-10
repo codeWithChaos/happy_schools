@@ -1,0 +1,16 @@
+# Core Django and essential packages
+Django==5.2.8
+python-decouple==3.8
+Pillow==11.0.0
+
+# Django REST Framework
+djangorestframework==3.15.2
+
+# Database drivers
+psycopg2-binary==2.9.10
+
+# Utilities
+python-dateutil==2.9.0
+
+# Security
+django-cors-headers==4.6.0

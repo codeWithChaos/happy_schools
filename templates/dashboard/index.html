@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - {{ block.super }}{% endblock %}
+
+{% block page_header %}
+<div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            Dashboard
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            Welcome back, {{ user.get_full_name }}!
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="mt-8">
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <!-- Stat Card 1 -->
+        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+            <dt class="truncate text-sm font-medium text-gray-500">Total Students</dt>
+            <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">--</dd>
+        </div>
+        
+        <!-- Stat Card 2 -->
+        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+            <dt class="truncate text-sm font-medium text-gray-500">Total Teachers</dt>
+            <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">--</dd>
+        </div>
+        
+        <!-- Stat Card 3 -->
+        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+            <dt class="truncate text-sm font-medium text-gray-500">Attendance Today</dt>
+            <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">--</dd>
+        </div>
+        
+        <!-- Stat Card 4 -->
+        <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+            <dt class="truncate text-sm font-medium text-gray-500">Pending Fees</dt>
+            <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">--</dd>
+        </div>
+    </div>
+    
+    <!-- Recent Activity Section -->
+    <div class="mt-8">
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                    Recent Activity
+                </h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                    Latest updates and notifications.
+                </p>
+            </div>
+            <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+                <p class="text-sm text-gray-500">
+                    Dashboard statistics and recent activity will be implemented in Phase 3
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

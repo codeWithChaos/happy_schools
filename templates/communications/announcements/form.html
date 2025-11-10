@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Create{% endif %} Announcement - {{ block.super }}{% endblock %}
+
+{% block page_header %}
+<div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            {% if form.instance.pk %}Edit Announcement{% else %}Create New Announcement{% endif %}
+        </h2>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="rounded-md bg-red-50 p-4">
+                <div class="flex">
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">{{ form.non_field_errors }}</h3>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <!-- Title -->
+                <div class="sm:col-span-2">
+                    <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Title <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Content -->
+                <div class="sm:col-span-2">
+                    <label for="{{ form.content.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Content <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.content }}
+                    {% if form.content.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.content.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Priority -->
+                <div>
+                    <label for="{{ form.priority.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Priority <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.priority }}
+                    {% if form.priority.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.priority.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Target Audience -->
+                <div>
+                    <label for="{{ form.target_audience.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Target Audience <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.target_audience }}
+                    {% if form.target_audience.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.target_audience.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Target Classes -->
+                <div class="sm:col-span-2">
+                    <label for="{{ form.target_classes.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Target Classes
+                    </label>
+                    <p class="text-xs text-gray-500 mb-2">Select classes if target audience is "Specific Class"</p>
+                    {{ form.target_classes }}
+                    {% if form.target_classes.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.target_classes.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Attachment -->
+                <div class="sm:col-span-2">
+                    <label for="{{ form.attachment.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Attachment
+                    </label>
+                    {{ form.attachment }}
+                    {% if form.attachment.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.attachment.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Publish Date -->
+                <div>
+                    <label for="{{ form.publish_date.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Publish Date
+                    </label>
+                    {{ form.publish_date }}
+                    {% if form.publish_date.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.publish_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Expiry Date -->
+                <div>
+                    <label for="{{ form.expiry_date.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Expiry Date
+                    </label>
+                    {{ form.expiry_date }}
+                    {% if form.expiry_date.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.expiry_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Is Published -->
+                <div class="flex items-center">
+                    <div class="flex h-5 items-center">
+                        {{ form.is_published }}
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="{{ form.is_published.id_for_label }}" class="font-medium text-gray-700">
+                            Publish Now
+                        </label>
+                        <p class="text-gray-500 text-xs">Make announcement visible immediately</p>
+                    </div>
+                </div>
+
+                <!-- Is Pinned -->
+                <div class="flex items-center">
+                    <div class="flex h-5 items-center">
+                        {{ form.is_pinned }}
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="{{ form.is_pinned.id_for_label }}" class="font-medium text-gray-700">
+                            Pin Announcement
+                        </label>
+                        <p class="text-gray-500 text-xs">Show at top of list</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-4 border-t">
+                <a href="{% url 'communications:announcement_list' %}" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit" class="rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+                    {% if form.instance.pk %}Update{% else %}Create{% endif %} Announcement
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,185 @@
+{% extends 'base.html' %}
+
+{% block title %}Timetable Management - {{ block.super }}{% endblock %}
+
+{% block page_header %}
+<div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            Timetable Management
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">Manage class schedules and teacher assignments</p>
+    </div>
+    <div class="mt-4 flex md:ml-4 md:mt-0 space-x-3">
+        {% if user.role == 'teacher' %}
+        <a href="{% url 'timetable:my_timetable' %}" class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            My Timetable
+        </a>
+        {% endif %}
+        {% if user.role == 'admin' %}
+        <a href="{% url 'timetable:create' %}" class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Add Entry
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<div class="bg-white shadow sm:rounded-lg mb-6">
+    <div class="px-4 py-5 sm:p-6">
+        <form method="get" class="space-y-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+                <div>
+                    <label for="academic_year" class="block text-sm font-medium text-gray-700">Academic Year</label>
+                    <select name="academic_year" id="academic_year" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                        <option value="">All Years</option>
+                        {% for year in academic_years %}
+                        <option value="{{ year.id }}" {% if academic_year_filter == year.id|stringformat:"s" %}selected{% endif %}>{{ year.year_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="class" class="block text-sm font-medium text-gray-700">Class</label>
+                    <select name="class" id="class" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                        <option value="">All Classes</option>
+                        {% for class in classes %}
+                        <option value="{{ class.id }}" {% if class_filter == class.id|stringformat:"s" %}selected{% endif %}>{{ class.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="section" class="block text-sm font-medium text-gray-700">Section</label>
+                    <select name="section" id="section" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                        <option value="">All Sections</option>
+                        {% for section in sections %}
+                        <option value="{{ section.id }}" {% if section_filter == section.id|stringformat:"s" %}selected{% endif %}>{{ section.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full inline-flex justify-center items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+                        Apply Filters
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Quick Links -->
+{% if class_filter and section_filter %}
+<div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        <div class="ml-3 flex-1 md:flex md:justify-between">
+            <p class="text-sm text-blue-700">
+                Viewing entries for a specific class. Want to see the full weekly schedule?
+            </p>
+            <p class="mt-3 text-sm md:mt-0 md:ml-6">
+                <a href="{% url 'timetable:class_view' class_filter section_filter %}" class="whitespace-nowrap font-medium text-blue-700 hover:text-blue-600">
+                    View Full Timetable →
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Timetable Entries Table -->
+<div class="bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        {% if timetables %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Class/Section</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Day</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Period</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Time</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Subject</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Teacher</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Room</th>
+                        <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                            <span class="sr-only">Actions</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                    {% for entry in timetables %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-3 py-4 text-sm">
+                            <div class="font-medium text-gray-900">{{ entry.class_assigned.name }} - {{ entry.section.name }}</div>
+                            <div class="text-gray-500 text-xs">{{ entry.academic_year.year_name }}</div>
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{{ entry.get_day_display }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">Period {{ entry.period_number }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ entry.start_time|time:"g:i A" }} - {{ entry.end_time|time:"g:i A" }}</td>
+                        <td class="px-3 py-4 text-sm">
+                            <div class="font-medium text-gray-900">{{ entry.subject.name }}</div>
+                            {% if entry.is_lab %}
+                            <span class="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">Lab</span>
+                            {% endif %}
+                            {% if entry.is_break %}
+                            <span class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">Break</span>
+                            {% endif %}
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            {% if entry.teacher %}
+                            {{ entry.teacher.get_full_name }}
+                            {% else %}
+                            <span class="text-gray-400">Not assigned</span>
+                            {% endif %}
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            {% if entry.room_number %}
+                            {{ entry.room_number }}
+                            {% else %}
+                            <span class="text-gray-400">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                            {% if user.role == 'admin' %}
+                            <a href="{% url 'timetable:edit' entry.id %}" class="text-primary-600 hover:text-primary-900 mr-3">Edit</a>
+                            <a href="{% url 'timetable:delete' entry.id %}" class="text-red-600 hover:text-red-900">Delete</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <h3 class="mt-2 text-sm font-semibold text-gray-900">No timetable entries found</h3>
+            <p class="mt-1 text-sm text-gray-500">Get started by creating a timetable entry.</p>
+            {% if user.role == 'admin' %}
+            <div class="mt-6">
+                <a href="{% url 'timetable:create' %}" class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+                    <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Add Timetable Entry
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

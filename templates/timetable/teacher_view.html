@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load timetable_tags %}
+
+{% block title %}{{ teacher.get_full_name }} - Timetable - {{ block.super }}{% endblock %}
+
+{% block page_header %}
+<div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+        <nav class="flex mb-2" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="{% url 'timetable:list' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary-600">Timetable</a>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">Teacher Timetable</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            {{ teacher.get_full_name }}
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">{{ academic_year.year_name }}</p>
+    </div>
+    <div class="mt-4 flex md:ml-4 md:mt-0 space-x-3">
+        {% if teachers %}
+        <form method="get" action="{% url 'timetable:teacher_view' teacher.id %}" class="flex items-center space-x-2">
+            <label for="teacher_select" class="text-sm text-gray-700">Teacher:</label>
+            <select name="teacher_id" id="teacher_select" onchange="window.location.href='{% url 'timetable:list' %}teacher/'+this.value+'/?academic_year={{ academic_year.id }}'" class="rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                {% for t in teachers %}
+                <option value="{{ t.id }}" {% if teacher.id == t.id %}selected{% endif %}>{{ t.get_full_name }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        {% endif %}
+        <form method="get" class="flex items-center space-x-2">
+            <select name="academic_year" onchange="this.form.submit()" class="rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                {% for year in academic_years %}
+                <option value="{{ year.id }}" {% if academic_year.id == year.id %}selected{% endif %}>{{ year.year_name }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow sm:rounded-lg overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="sticky left-0 z-10 bg-gray-50 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
+                        Period
+                    </th>
+                    {% for day in days %}
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {{ day|title }}
+                    </th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for period_num, period_time in periods %}
+                <tr>
+                    <td class="sticky left-0 z-10 bg-white border-r border-gray-200 px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">Period {{ period_num }}</div>
+                        <div class="text-xs text-gray-500">{{ period_time.start_time|time:"g:i A" }}</div>
+                        <div class="text-xs text-gray-500">{{ period_time.end_time|time:"g:i A" }}</div>
+                    </td>
+                    {% for day in days %}
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if day in timetable_grid and period_num in timetable_grid|index:day %}
+                            {% with entry=timetable_grid|index:day|index:period_num %}
+                            <div class="text-sm">
+                                <div class="font-medium text-gray-900">{{ entry.class_assigned.name }}-{{ entry.section.name }}</div>
+                                <div class="text-xs text-gray-500">{{ entry.subject.name }}</div>
+                                {% if entry.room_number %}
+                                <div class="text-xs text-gray-500">Room: {{ entry.room_number }}</div>
+                                {% endif %}
+                                {% if entry.is_lab %}
+                                <span class="inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800 mt-1">Lab</span>
+                                {% endif %}
+                            </div>
+                            {% endwith %}
+                        {% else %}
+                            <span class="text-xs text-gray-400">Free</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-6 py-12 text-center">
+                        <div class="text-gray-500">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <h3 class="mt-2 text-sm font-semibold text-gray-900">No teaching schedule</h3>
+                            <p class="mt-1 text-sm text-gray-500">No classes assigned to this teacher.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Teaching Summary -->
+{% if periods %}
+<div class="mt-6 bg-white shadow sm:rounded-lg px-4 py-5">
+    <h3 class="text-sm font-medium text-gray-900 mb-3">Teaching Summary</h3>
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div>
+            <dt class="text-sm text-gray-500">Total Periods/Week</dt>
+            <dd class="mt-1 text-2xl font-semibold text-gray-900">{{ periods|length }}</dd>
+        </div>
+        <div>
+            <dt class="text-sm text-gray-500">Daily Average</dt>
+            <dd class="mt-1 text-2xl font-semibold text-gray-900">{{ periods|length|floatformat:1|divisibleby:"6" }}</dd>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Create{% endif %} Exam - {{ block.super }}{% endblock %}
+
+{% block page_header %}
+<div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            {% if form.instance.pk %}Edit Exam{% else %}Create New Exam{% endif %}
+        </h2>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Display form errors -->
+            {% if form.non_field_errors %}
+            <div class="rounded-md bg-red-50 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">{{ form.non_field_errors }}</h3>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <!-- Academic Year -->
+                <div>
+                    <label for="{{ form.academic_year.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Academic Year <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.academic_year }}
+                    {% if form.academic_year.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.academic_year.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Exam Type -->
+                <div>
+                    <label for="{{ form.exam_type.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Exam Type <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.exam_type }}
+                    {% if form.exam_type.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.exam_type.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Exam Name -->
+                <div class="sm:col-span-2">
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Exam Name <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Description -->
+                <div class="sm:col-span-2">
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Description
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Classes -->
+                <div class="sm:col-span-2">
+                    <label for="{{ form.classes.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Select Classes <span class="text-red-500">*</span>
+                    </label>
+                    <p class="text-xs text-gray-500 mb-2">Hold Ctrl (Cmd on Mac) to select multiple classes</p>
+                    {{ form.classes }}
+                    {% if form.classes.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.classes.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Start Date -->
+                <div>
+                    <label for="{{ form.start_date.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Start Date <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.start_date }}
+                    {% if form.start_date.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.start_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- End Date -->
+                <div>
+                    <label for="{{ form.end_date.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        End Date <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.end_date }}
+                    {% if form.end_date.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.end_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Result Declaration Date -->
+                <div>
+                    <label for="{{ form.result_declaration_date.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        Result Declaration Date
+                    </label>
+                    {{ form.result_declaration_date }}
+                    {% if form.result_declaration_date.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.result_declaration_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                {% if form.instance.pk %}
+                <!-- Result Published -->
+                <div class="flex items-center">
+                    <div class="flex h-5 items-center">
+                        {{ form.is_result_published }}
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="{{ form.is_result_published.id_for_label }}" class="font-medium text-gray-700">
+                            Result Published
+                        </label>
+                        <p class="text-gray-500 text-xs">Check to make results visible to students</p>
+                    </div>
+                </div>
+
+                <!-- Active Status -->
+                <div class="flex items-center">
+                    <div class="flex h-5 items-center">
+                        {{ form.is_active }}
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="{{ form.is_active.id_for_label }}" class="font-medium text-gray-700">
+                            Active
+                        </label>
+                        <p class="text-gray-500 text-xs">Uncheck to deactivate this exam</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="flex justify-end space-x-3 pt-4 border-t">
+                <a href="{% url 'examinations:list' %}" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                    Cancel
+                </a>
+                <button type="submit" class="rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+                    {% if form.instance.pk %}Update{% else %}Create{% endif %} Exam
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

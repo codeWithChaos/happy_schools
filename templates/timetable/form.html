@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} Timetable Entry - {{ block.super }}{% endblock %}
+
+{% block page_header %}
+<div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+        <nav class="flex mb-2" aria-label="Breadcrumb">
+            <ol class="inline-flex items-center space-x-1 md:space-x-3">
+                <li class="inline-flex items-center">
+                    <a href="{% url 'timetable:list' %}" class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-primary-600">Timetable</a>
+                </li>
+                <li aria-current="page">
+                    <div class="flex items-center">
+                        <svg class="w-3 h-3 text-gray-400 mx-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
+                        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2">{% if object %}Edit{% else %}Add{% endif %}</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            {{ title }}
+        </h2>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl">
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Basic Information -->
+        <div class="bg-white shadow sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Basic Information</h3>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label for="{{ form.academic_year.id_for_label }}" class="block text-sm font-medium text-gray-700">Academic Year *</label>
+                        {{ form.academic_year }}
+                        {% if form.academic_year.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.academic_year.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="{{ form.class_assigned.id_for_label }}" class="block text-sm font-medium text-gray-700">Class *</label>
+                            {{ form.class_assigned }}
+                            {% if form.class_assigned.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.class_assigned.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.section.id_for_label }}" class="block text-sm font-medium text-gray-700">Section *</label>
+                            {{ form.section }}
+                            {% if form.section.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.section.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Schedule Details -->
+        <div class="bg-white shadow sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Schedule Details</h3>
+                
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="{{ form.day.id_for_label }}" class="block text-sm font-medium text-gray-700">Day *</label>
+                            {{ form.day }}
+                            {% if form.day.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.day.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.period_number.id_for_label }}" class="block text-sm font-medium text-gray-700">Period Number *</label>
+                            {{ form.period_number }}
+                            <p class="mt-1 text-xs text-gray-500">Enter period number (e.g., 1, 2, 3)</p>
+                            {% if form.period_number.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.period_number.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        <div>
+                            <label for="{{ form.start_time.id_for_label }}" class="block text-sm font-medium text-gray-700">Start Time *</label>
+                            {{ form.start_time }}
+                            {% if form.start_time.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.start_time.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.end_time.id_for_label }}" class="block text-sm font-medium text-gray-700">End Time *</label>
+                            {{ form.end_time }}
+                            {% if form.end_time.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.end_time.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Subject & Teacher -->
+        <div class="bg-white shadow sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Subject & Teacher</h3>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label for="{{ form.subject.id_for_label }}" class="block text-sm font-medium text-gray-700">Subject *</label>
+                        {{ form.subject }}
+                        {% if form.subject.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.subject.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.teacher.id_for_label }}" class="block text-sm font-medium text-gray-700">Teacher</label>
+                        {{ form.teacher }}
+                        <p class="mt-1 text-xs text-gray-500">Optional - can be assigned later</p>
+                        {% if form.teacher.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.teacher.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.room_number.id_for_label }}" class="block text-sm font-medium text-gray-700">Room Number</label>
+                        {{ form.room_number }}
+                        {% if form.room_number.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.room_number.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Additional Options -->
+        <div class="bg-white shadow sm:rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Additional Options</h3>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        {{ form.is_break }}
+                        <label for="{{ form.is_break.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            This is a break period
+                        </label>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        {{ form.is_lab }}
+                        <label for="{{ form.is_lab.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            This is a laboratory session
+                        </label>
+                    </div>
+                    
+                    {% if object %}
+                    <div class="flex items-center">
+                        {{ form.is_active }}
+                        <label for="{{ form.is_active.id_for_label }}" class="ml-2 block text-sm text-gray-900">
+                            Active (entry is currently in use)
+                        </label>
+                    </div>
+                    {% endif %}
+                    
+                    <div>
+                        <label for="{{ form.remarks.id_for_label }}" class="block text-sm font-medium text-gray-700">Remarks</label>
+                        {{ form.remarks }}
+                        {% if form.remarks.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.remarks.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Form Errors -->
+        {% if form.non_field_errors %}
+        <div class="rounded-md bg-red-50 p-4">
+            <div class="flex">
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">{{ form.non_field_errors.0 }}</h3>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Actions -->
+        <div class="flex justify-end space-x-3">
+            <a href="{% url 'timetable:list' %}" class="rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Cancel</a>
+            <button type="submit" class="rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600">
+                {% if object %}Update{% else %}Create{% endif %} Entry
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

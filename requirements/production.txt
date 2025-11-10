@@ -1,0 +1,19 @@
+# Include base requirements
+-r base.txt
+
+# Production web server
+gunicorn==23.0.0
+
+# Redis for caching
+redis==5.2.1
+django-redis==5.4.0
+
+# Performance monitoring
+sentry-sdk==2.19.2
+
+# Cloud storage (optional)
+boto3==1.35.79
+django-storages==1.14.4
+
+# Security
+django-ratelimit==4.1.0

@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Search Header -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">Search Results</h1>
+        
+        <!-- Search Form -->
+        <form method="get" action="{% url 'dashboard:search' %}" class="flex gap-2">
+            <input 
+                type="text" 
+                name="q" 
+                value="{{ query }}"
+                placeholder="Search students, teachers, announcements..." 
+                class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                autofocus
+            >
+            <button type="submit" class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                Search
+            </button>
+        </form>
+        
+        {% if query %}
+        <p class="text-sm text-gray-600 mt-2">Showing results for: <span class="font-medium">"{{ query }}"</span></p>
+        {% endif %}
+    </div>
+
+    {% if query %}
+        <!-- Students Results -->
+        {% if students %}
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Students ({{ students|length }})</h2>
+            </div>
+            <div class="divide-y divide-gray-200">
+                {% for student in students %}
+                <div class="p-4 hover:bg-gray-50">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ student.user.get_full_name }}</p>
+                            <p class="text-sm text-gray-600">{{ student.current_class.name }} - Roll No: {{ student.roll_number }}</p>
+                            <p class="text-xs text-gray-500">Admission No: {{ student.admission_number }}</p>
+                        </div>
+                        <a href="{% url 'students:detail' student.id %}" class="px-4 py-2 bg-blue-50 text-blue-700 text-sm font-medium rounded-lg hover:bg-blue-100">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Teachers Results -->
+        {% if teachers %}
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Teachers ({{ teachers|length }})</h2>
+            </div>
+            <div class="divide-y divide-gray-200">
+                {% for teacher in teachers %}
+                <div class="p-4 hover:bg-gray-50">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ teacher.user.get_full_name }}</p>
+                            <p class="text-sm text-gray-600">Employee ID: {{ teacher.employee_id }}</p>
+                            {% if teacher.subjects.all %}
+                            <p class="text-xs text-gray-500">Subjects: {% for subject in teacher.subjects.all %}{{ subject.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Announcements Results -->
+        {% if announcements %}
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Announcements ({{ announcements|length }})</h2>
+            </div>
+            <div class="divide-y divide-gray-200">
+                {% for announcement in announcements %}
+                <div class="p-4 hover:bg-gray-50">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2">
+                                <p class="font-medium text-gray-900">{{ announcement.title }}</p>
+                                {% if announcement.priority == 'urgent' %}
+                                <span class="text-xs px-2 py-1 bg-red-100 text-red-800 rounded-full">Urgent</span>
+                                {% elif announcement.priority == 'high' %}
+                                <span class="text-xs px-2 py-1 bg-orange-100 text-orange-800 rounded-full">High</span>
+                                {% endif %}
+                            </div>
+                            <p class="text-sm text-gray-600 mt-1">{{ announcement.content|truncatewords:30 }}</p>
+                            <p class="text-xs text-gray-500 mt-1">Posted {{ announcement.created_at|timesince }} ago by {{ announcement.created_by.get_full_name }}</p>
+                        </div>
+                        <a href="{% url 'communications:announcement_detail' announcement.id %}" class="ml-4 px-4 py-2 bg-purple-50 text-purple-700 text-sm font-medium rounded-lg hover:bg-purple-100 whitespace-nowrap">
+                            View
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Exams Results -->
+        {% if exams %}
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Exams ({{ exams|length }})</h2>
+            </div>
+            <div class="divide-y divide-gray-200">
+                {% for exam in exams %}
+                <div class="p-4 hover:bg-gray-50">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ exam.name }}</p>
+                            <p class="text-sm text-gray-600">{{ exam.exam_type|title }} - {{ exam.get_exam_type_display }}</p>
+                            <p class="text-xs text-gray-500">{{ exam.start_date }} to {{ exam.end_date }}{% if exam.is_result_published %} | <span class="text-green-600">Results Published</span>{% endif %}</p>
+                        </div>
+                        <a href="{% url 'examinations:detail' exam.id %}" class="px-4 py-2 bg-yellow-50 text-yellow-700 text-sm font-medium rounded-lg hover:bg-yellow-100">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- No Results -->
+        {% if not students and not teachers and not announcements and not exams %}
+        <div class="bg-white rounded-lg shadow p-12 text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <h3 class="mt-4 text-lg font-medium text-gray-900">No Results Found</h3>
+            <p class="mt-2 text-sm text-gray-500">Try searching with different keywords or check your spelling.</p>
+        </div>
+        {% endif %}
+    {% else %}
+        <!-- Empty State -->
+        <div class="bg-white rounded-lg shadow p-12 text-center">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <h3 class="mt-4 text-lg font-medium text-gray-900">Start Searching</h3>
+            <p class="mt-2 text-sm text-gray-500">Enter keywords to search for students, teachers, announcements, and exams.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

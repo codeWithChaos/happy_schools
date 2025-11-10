@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance Reports - {{ block.super }}{% endblock %}
+
+{% block page_header %}
+<div class="md:flex md:items-center md:justify-between">
+    <div class="min-w-0 flex-1">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            Attendance Reports
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            View attendance statistics and analytics
+        </p>
+    </div>
+    <div class="mt-4 flex md:ml-4 md:mt-0">
+        <a href="{% url 'attendance:list' %}" class="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+            <svg class="-ml-0.5 mr-1.5 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Back to List
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Overall Statistics -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-gray-500">Total Records</dt>
+        <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-900">{{ overall_stats.total_records }}</dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-gray-500">Present</dt>
+        <dd class="mt-1 text-3xl font-semibold tracking-tight text-green-600">{{ overall_stats.present_records }}</dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-gray-500">Absent</dt>
+        <dd class="mt-1 text-3xl font-semibold tracking-tight text-red-600">{{ overall_stats.absent_records }}</dd>
+    </div>
+    <div class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
+        <dt class="truncate text-sm font-medium text-gray-500">Attendance Rate</dt>
+        <dd class="mt-1 text-3xl font-semibold tracking-tight text-primary-600">{{ overall_stats.attendance_percentage }}%</dd>
+    </div>
+</div>
+
+<!-- Filter Form -->
+<div class="bg-white shadow sm:rounded-lg mb-6">
+    <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Report Filters</h3>
+        <form method="get" action="{% url 'attendance:report' %}" class="space-y-4">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+                <!-- Report Type -->
+                <div>
+                    <label for="report_type" class="block text-sm font-medium text-gray-700">Report Type</label>
+                    <select name="report_type" id="report_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                        <option value="daily" {% if report_type == 'daily' %}selected{% endif %}>Daily Summary</option>
+                        <option value="student" {% if report_type == 'student' %}selected{% endif %}>Student-wise</option>
+                        <option value="class" {% if report_type == 'class' %}selected{% endif %}>Class-wise</option>
+                    </select>
+                </div>
+                
+                <!-- Start Date -->
+                <div>
+                    <label for="start_date" class="block text-sm font-medium text-gray-700">Start Date</label>
+                    <input type="date" name="start_date" id="start_date" value="{{ start_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                </div>
+                
+                <!-- End Date -->
+                <div>
+                    <label for="end_date" class="block text-sm font-medium text-gray-700">End Date</label>
+                    <input type="date" name="end_date" id="end_date" value="{{ end_date }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                </div>
+                
+                <!-- Class -->
+                <div>
+                    <label for="class" class="block text-sm font-medium text-gray-700">Class</label>
+                    <select name="class" id="class" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                        <option value="">All Classes</option>
+                        {% for class in classes %}
+                        <option value="{{ class.id }}" {% if selected_class == class.id|stringformat:"s" %}selected{% endif %}>{{ class.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Section -->
+                <div>
+                    <label for="section" class="block text-sm font-medium text-gray-700">Section</label>
+                    <select name="section" id="section" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                        <option value="">All Sections</option>
+                        {% for section in sections %}
+                        <option value="{{ section.id }}" {% if selected_section == section.id|stringformat:"s" %}selected{% endif %}>{{ section.class_obj.name }} - {{ section.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="flex justify-end">
+                <button type="submit" class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+                    Generate Report
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Report Content -->
+<div class="bg-white shadow sm:rounded-lg">
+    <div class="px-4 py-5 sm:p-6">
+        {% if report_type == 'daily' %}
+        <!-- Daily Summary Report -->
+        <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Daily Attendance Summary</h3>
+        {% if daily_stats %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Date</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Present</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Absent</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Late</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Attendance %</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                    {% for stat in daily_stats %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{{ stat.date|date:"M d, Y" }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ stat.total }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-green-600 font-semibold">{{ stat.present }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-red-600 font-semibold">{{ stat.absent }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-orange-600 font-semibold">{{ stat.late }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+                            {% widthratio stat.present stat.total 100 %}%
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center text-gray-500 py-8">No data available for the selected period.</p>
+        {% endif %}
+        
+        {% elif report_type == 'student' %}
+        <!-- Student-wise Report -->
+        <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Student-wise Attendance Report</h3>
+        {% if student_stats %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Student</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Class</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Days</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Present</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Absent</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Late</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Attendance %</th>
+                        <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                            <span class="sr-only">Actions</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                    {% for stat in student_stats %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-3 py-4 text-sm">
+                            <div class="font-medium text-gray-900">{{ stat.student__user__first_name }} {{ stat.student__user__last_name }}</div>
+                            <div class="text-gray-500">{{ stat.student__admission_number }}</div>
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                            {{ stat.student__class_assigned__name }} - {{ stat.student__section__name }}
+                        </td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ stat.total_days }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-green-600 font-semibold">{{ stat.present_days }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-red-600 font-semibold">{{ stat.absent_days }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-orange-600 font-semibold">{{ stat.late_days }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm">
+                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                                {% if stat.attendance_percentage >= 90 %}bg-green-100 text-green-800
+                                {% elif stat.attendance_percentage >= 75 %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ stat.attendance_percentage }}%
+                            </span>
+                        </td>
+                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                            <a href="{% url 'attendance:student_detail' stat.student__id %}" class="text-primary-600 hover:text-primary-900">
+                                View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center text-gray-500 py-8">No data available for the selected filters.</p>
+        {% endif %}
+        
+        {% elif report_type == 'class' %}
+        <!-- Class-wise Report -->
+        <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Class-wise Attendance Report</h3>
+        {% if class_stats %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Class</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Section</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Records</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Present</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Absent</th>
+                        <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Attendance %</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 bg-white">
+                    {% for stat in class_stats %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">{{ stat.student__class_assigned__name }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ stat.student__section__name }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{{ stat.total_records }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-green-600 font-semibold">{{ stat.present_count }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm text-red-600 font-semibold">{{ stat.absent_count }}</td>
+                        <td class="whitespace-nowrap px-3 py-4 text-sm">
+                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                                {% if stat.attendance_percentage >= 90 %}bg-green-100 text-green-800
+                                {% elif stat.attendance_percentage >= 75 %}bg-yellow-100 text-yellow-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ stat.attendance_percentage }}%
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-center text-gray-500 py-8">No data available for the selected filters.</p>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
